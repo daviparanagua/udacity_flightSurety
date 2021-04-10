@@ -12,6 +12,8 @@ contract FlightSuretyData {
     address private contractOwner;                                      // Account used to deploy contract
     bool private operational = true;                                    // Blocks all state changes throughout the contract if false
 
+    mapping(address => bool) private authorizedCallers;
+
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -87,6 +89,16 @@ contract FlightSuretyData {
                             requireContractOwner 
     {
         operational = mode;
+    }
+
+    function authorizeCaller(address contractAddress) requireContractOwner public
+    {
+        authorizedCallers[contractAddress] = true;
+    }
+
+    function deauthorizeCaller(address contractAddress) requireContractOwner public
+    {
+        authorizedCallers[contractAddress] = false;
     }
 
     /********************************************************************************************/
