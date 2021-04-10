@@ -14,6 +14,15 @@ contract FlightSuretyData {
 
     mapping(address => bool) private authorizedCallers;
 
+
+    struct Airline {
+        address addr;
+        string name;
+        uint256 balance;
+        bool isArline;
+    }
+    mapping(address => Airline) private airlines;
+
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -120,11 +129,31 @@ contract FlightSuretyData {
     */   
     function registerAirline
                             (   
-
+                                address _address,
+                                string _name
                             )
                             external
                             onlyAuthorizedCaller
     {
+        Airline memory newAirline = Airline({
+            addr: _address,
+            name: _name,
+            balance: 0,
+            isArline: true
+        });
+        airlines[_address] = newAirline;
+    }
+
+    /** */
+    function isAirline
+                            (   
+                                address _address
+                            )
+                            external
+                            view
+                            returns (bool)
+    {
+        return airlines[_address].isArline;
     }
 
 

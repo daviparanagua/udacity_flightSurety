@@ -16,6 +16,8 @@ contract FlightSuretyApp {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
+    FlightSuretyData flightSuretyData;
+
     // Flight status codees
     uint8 private constant STATUS_CODE_UNKNOWN = 0;
     uint8 private constant STATUS_CODE_ON_TIME = 10;
@@ -102,12 +104,25 @@ contract FlightSuretyApp {
     */   
     function registerAirline
                             (   
+                                address _address,
+                                string name
                             )
                             external
-                            pure
                             returns(bool success, uint256 votes)
     {
+        flightSuretyData.registerAirline(_address, name);
         return (success, 0);
+    }
+
+     function isAirline
+                            (   
+                                address _address
+                            )
+                            external
+                            view
+                            returns(bool)
+    {
+        return flightSuretyData.isAirline(_address);
     }
 
 
@@ -335,3 +350,20 @@ contract FlightSuretyApp {
 // endregion
 
 }   
+
+contract FlightSuretyData {
+    function registerAirline
+                            (   
+                                address _address,
+                                string _name
+                            )
+                            external;
+
+    function isAirline
+                            (   
+                                address _address
+                            )
+                            external
+                            view
+                            returns (bool);
+}
