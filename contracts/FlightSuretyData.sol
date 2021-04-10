@@ -58,6 +58,14 @@ contract FlightSuretyData {
         _;
     }
 
+    /** 
+    * @dev Modifier that requires the caller to be authorized
+    */
+    modifier onlyAuthorizedCaller(){
+        require(authorizedCallers[msg.sender] == true);
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
@@ -112,9 +120,10 @@ contract FlightSuretyData {
     */   
     function registerAirline
                             (   
+
                             )
                             external
-                            pure
+                            onlyAuthorizedCaller
     {
     }
 
