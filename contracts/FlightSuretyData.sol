@@ -34,10 +34,21 @@ contract FlightSuretyData {
     */
     constructor
                                 (
+                                    address _firstAirline,
+                                    string _firstAirlineName
                                 ) 
                                 public 
     {
         contractOwner = msg.sender;
+
+        Airline memory newAirline = Airline({
+            addr: _firstAirline,
+            name: _firstAirlineName,
+            balance: 0,
+            isArline: true
+        });
+        
+        airlines[_firstAirline] = newAirline;
     }
 
     /********************************************************************************************/
