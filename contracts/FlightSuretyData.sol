@@ -19,7 +19,8 @@ contract FlightSuretyData {
         address addr;
         string name;
         uint256 balance;
-        bool isArline;
+        bool isAirline;
+        bool isFunded;
     }
     mapping(address => Airline) private airlines;
 
@@ -27,6 +28,7 @@ contract FlightSuretyData {
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
 
+    event AirlineAdded(address airline);
 
     /**
     * @dev Constructor
@@ -41,14 +43,15 @@ contract FlightSuretyData {
     {
         contractOwner = msg.sender;
 
-        Airline memory newAirline = Airline({
+        airlines[_firstAirline] = Airline({
             addr: _firstAirline,
             name: _firstAirlineName,
             balance: 0,
-            isArline: true
+            isAirline: true,
+            isFunded: false
         });
         
-        airlines[_firstAirline] = newAirline;
+        emit AirlineAdded(_firstAirline);
     }
 
     /********************************************************************************************/
@@ -146,13 +149,15 @@ contract FlightSuretyData {
                             external
                             onlyAuthorizedCaller
     {
-        Airline memory newAirline = Airline({
+        airlines[_address] = Airline({
             addr: _address,
             name: _name,
             balance: 0,
-            isArline: true
+            isAirline: true,
+            isFunded: false
         });
-        airlines[_address] = newAirline;
+
+        emit AirlineAdded(_address);
     }
 
     /** */
@@ -160,11 +165,23 @@ contract FlightSuretyData {
                             (   
                                 address _address
                             )
-                            external
+                            public
                             view
                             returns (bool)
     {
-        return airlines[_address].isArline;
+        return airlines[_address].isAirline;
+    }
+
+    /** */
+    function isFundedAirline
+                            (   
+                                address _address
+                            )
+                            public
+                            view
+                            returns (bool)
+    {
+        return airlines[_address].isAirline && airlines[_address].isFunded;
     }
 
 

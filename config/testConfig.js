@@ -25,7 +25,7 @@ var Config = async function(accounts) {
     let firstAirlineName = 'Genesis Test Airlines'
 
     let flightSuretyData = await FlightSuretyData.new(firstAirline, firstAirlineName);
-    let flightSuretyApp = await FlightSuretyApp.new();
+    let flightSuretyApp = await FlightSuretyApp.new(flightSuretyData.address);
 
     
     return {

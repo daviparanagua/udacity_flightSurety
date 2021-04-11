@@ -8,7 +8,7 @@ module.exports = function(deployer) {
     let firstAirlineName = 'Genesis Airlines';
     deployer.deploy(FlightSuretyData, firstAirline, firstAirlineName)
     .then(() => {
-        return deployer.deploy(FlightSuretyApp)
+        return deployer.deploy(FlightSuretyApp, FlightSuretyData.address)
                 .then(() => {
                     let config = {
                         localhost: {

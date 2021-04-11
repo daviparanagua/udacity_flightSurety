@@ -65,6 +65,12 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier onlyFundedAirlines()
+    {
+        require(isFundedAirline(msg.sender), "Caller is not a funded airline");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -75,10 +81,12 @@ contract FlightSuretyApp {
     */
     constructor
                                 (
+                                    address dataContractAddress
                                 ) 
                                 public 
     {
         contractOwner = msg.sender;
+        flightSuretyData = FlightSuretyData(dataContractAddress);
     }
 
     /********************************************************************************************/
@@ -108,23 +116,35 @@ contract FlightSuretyApp {
                                 string name
                             )
                             external
+                            onlyFundedAirlines
                             returns(bool success, uint256 votes)
     {
+        // require(isAirline(msg.sender), "Only airlines can register another airline");
         flightSuretyData.registerAirline(_address, name);
         return (success, 0);
     }
-
-     function isAirline
+    
+    function isAirline
                             (   
                                 address _address
                             )
-                            external
+                            public
                             view
                             returns(bool)
     {
         return flightSuretyData.isAirline(_address);
     }
 
+    function isFundedAirline
+                            (   
+                                address _address
+                            )
+                            public
+                            view
+                            returns(bool)
+    {
+        return flightSuretyData.isAirline(_address) && flightSuretyData.isFundedAirline(_address);
+    }
 
    /**
     * @dev Register a future flight for insuring.
@@ -363,7 +383,15 @@ contract FlightSuretyData {
                             (   
                                 address _address
                             )
-                            external
+                            public
+                            view
+                            returns (bool);
+
+    function isFundedAirline
+                            (   
+                                address _address
+                            )
+                            public
                             view
                             returns (bool);
 }
