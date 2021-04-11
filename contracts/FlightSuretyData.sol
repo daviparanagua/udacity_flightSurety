@@ -181,7 +181,23 @@ contract FlightSuretyData {
                             view
                             returns (bool)
     {
-        return airlines[_address].isAirline && airlines[_address].isFunded;
+        return airlines[_address].isFunded;
+    }
+
+    /** */
+    function addFunds
+                            (   
+                                address _address
+                            )
+                            public
+                            payable
+                            onlyAuthorizedCaller
+    {
+        airlines[_address].balance = airlines[_address].balance.add(msg.value);
+
+        if(airlines[_address].balance >= 10 ether){
+            airlines[_address].isFunded = true;
+        }
     }
 
 

@@ -143,8 +143,18 @@ contract FlightSuretyApp {
                             view
                             returns(bool)
     {
-        return flightSuretyData.isAirline(_address) && flightSuretyData.isFundedAirline(_address);
+        return flightSuretyData.isFundedAirline(_address);
     }
+
+    function addFunds
+                            (
+                            )
+                            public
+                            payable
+    {
+        flightSuretyData.addFunds.value(msg.value)(msg.sender);
+    }
+
 
    /**
     * @dev Register a future flight for insuring.
@@ -394,4 +404,11 @@ contract FlightSuretyData {
                             public
                             view
                             returns (bool);
+
+    function addFunds
+                            (   
+                                address _address
+                            )
+                            public
+                            payable;
 }

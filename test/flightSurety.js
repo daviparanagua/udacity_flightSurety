@@ -1,6 +1,7 @@
 
 var Test = require('../config/testConfig.js');
 var BigNumber = require('bignumber.js');
+const web3 = require('web3');
 
 contract('Flight Surety Tests', async (accounts) => {
 
@@ -87,6 +88,45 @@ contract('Flight Surety Tests', async (accounts) => {
 
     // ASSERT
     assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
+
+  });
+
+  it('(airline) can fund itself, but only with enough ether', async () => {
+    
+    // ARRANGE
+    let isAirline = await config.flightSuretyApp.isAirline.call(config.firstAirline); 
+    assert.equal(isAirline, true, "Is already airline");
+
+    let isFunded = await config.flightSuretyApp.isFundedAirline.call(config.firstAirline); 
+    assert.equal(isFunded, false, "Not funded yet");
+
+     // ACT
+     try {
+      await config.flightSuretyApp.addFunds({from: config.firstAirline, value: web3.utils.toWei('1', 'gwei')});
+      }
+      catch(e) {
+        console.log('reverted');
+      }
+
+      isAirline = await config.flightSuretyApp.isAirline.call(config.firstAirline); 
+      assert.equal(isAirline, true, "Still airline");
+
+      let isNowFunded = await config.flightSuretyApp.isFundedAirline.call(config.firstAirline); 
+      assert.equal(isNowFunded, false, "No good. Few ether");
+
+    // ACT
+    try {
+        await config.flightSuretyApp.addFunds({from: config.firstAirline, value: web3.utils.toWei('10', 'ether')});
+    }
+    catch(e) {
+      console.log('reverted');
+    }
+
+    isAirline = await config.flightSuretyApp.isAirline.call(config.firstAirline); 
+    assert.equal(isAirline, true, "Still airline");
+
+    isNowFunded = await config.flightSuretyApp.isFundedAirline.call(config.firstAirline); 
+    assert.equal(isNowFunded, true, "Is now funded");
 
   });
  
