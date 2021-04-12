@@ -12,11 +12,20 @@ import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 contract FlightSuretyApp {
     using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
 
+    event AirlineAdded(address airline);
+    event AirlineVotedForAdding(address airline);
+
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
     FlightSuretyData flightSuretyData;
+
+    address private contractOwner;          // Account used to deploy contract
+
+    // Airlines
+
+    uint8 maxAirlinesBeforeMultisig;
 
     // Flight status codees
     uint8 private constant STATUS_CODE_UNKNOWN = 0;
@@ -26,7 +35,7 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
-    address private contractOwner;          // Account used to deploy contract
+    // Flights
 
     struct Flight {
         bool isRegistered;
@@ -93,6 +102,7 @@ contract FlightSuretyApp {
     {
         contractOwner = msg.sender;
         flightSuretyData = FlightSuretyData(dataContractAddress);
+        maxAirlinesBeforeMultisig = 4;
     }
 
     /********************************************************************************************/
@@ -124,16 +134,41 @@ contract FlightSuretyApp {
                             external
                             onlyFundedAirlines
                             returns(bool success, uint256 votes)
-    {
+    {    
+        uint256 airlinesCount = flightSuretyData.getAirlinesCount();
 
-        if(flightSuretyData.getAirlinesCount() < 4) { // Simple registration
-            require(isAirline(msg.sender), "Only airlines can register another airline");
+        if(flightSuretyData.getAirlinesCount() < maxAirlinesBeforeMultisig) { // Simple registration
+            flightSuretyData.registerAirline(_address, name, true);
+            emit AirlineAdded(_address);
+            return (true, 0); 
         } else { // Multisig
-            revert("Requires multisig (not implemented)");
-        }
 
-        flightSuretyData.registerAirline(_address, name);
-        return (success, 0);
+            bool exists;
+            bool isAirline;
+            bool isFunded;
+            uint256 approvalCount;
+
+            (
+                ,,
+                exists,
+                isAirline,
+                isFunded,
+                approvalCount
+            ) = flightSuretyData.getAirlineData(_address);
+
+            if(!exists){
+                flightSuretyData.registerAirline(_address, name, false);
+                
+            }
+            else if(votes + 1 < airlinesCount/2) { // Only a vote
+
+
+            } else { // Final vote: approved
+
+            }
+
+            
+        }
     }
     
     function isAirline
@@ -399,7 +434,8 @@ contract FlightSuretyData {
     function registerAirline
                             (   
                                 address _address,
-                                string _name
+                                string _name,
+                                bool _approved
                             )
                             external;
 
@@ -432,4 +468,30 @@ contract FlightSuretyData {
                             public
                             view
                             returns (uint256);
+
+    function getAirlineData
+                            (   
+                                address _address
+                            )
+                            external
+                            view
+                            returns
+                            (
+                                address addr,
+                                string name,
+                                uint256 balance,
+                                bool exists,
+                                bool isAirline,
+                                bool isFunded,
+                                uint256 approvalCount
+                            );
+    
+     function hasApprovedAirline
+                            (   
+                                address _address,
+                                address _airlineAddress
+                            )
+                            external
+                            view
+                            returns (bool);
 }

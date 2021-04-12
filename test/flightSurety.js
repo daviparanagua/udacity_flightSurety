@@ -193,7 +193,7 @@ contract('Flight Surety Tests', async (accounts) => {
 
     // ASSERT
     assert.equal(result, false, "Airline should not be able to register another airline after the fourth");
-    assert.equal(reverted, true, "Transcation must revert");
+    assert.equal(reverted, false, "Transcation must not revert");
 
   });
  

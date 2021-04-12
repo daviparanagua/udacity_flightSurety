@@ -14,22 +14,24 @@ contract FlightSuretyData {
 
     mapping(address => bool) private authorizedCallers;
 
-
+    uint256 airlinesCount;
     struct Airline {
         address addr;
         string name;
         uint256 balance;
+        bool exists;
         bool isAirline;
         bool isFunded;
+        uint256 approvalCount;
+        mapping(address=>bool) approvals;
     }
     mapping(address => Airline) private airlines;
-    uint256 airlinesCount;
+
+
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
-
-    event AirlineAdded(address airline);
 
     /**
     * @dev Constructor
@@ -48,12 +50,13 @@ contract FlightSuretyData {
             addr: _firstAirline,
             name: _firstAirlineName,
             balance: 0,
+            exists: true,
             isAirline: true,
-            isFunded: false
+            isFunded: false,
+            approvalCount: 0
         });
+
         airlinesCount = 1;
-        
-        emit AirlineAdded(_firstAirline);
     }
 
     /********************************************************************************************/
@@ -146,22 +149,24 @@ contract FlightSuretyData {
     function registerAirline
                             (   
                                 address _address,
-                                string _name
+                                string _name,
+                                bool _approved
                             )
                             external
                             onlyAuthorizedCaller
     {
+        
         airlines[_address] = Airline({
             addr: _address,
             name: _name,
             balance: 0,
-            isAirline: true,
-            isFunded: false
+            exists: true,
+            isAirline: _approved,
+            isFunded: false,
+            approvalCount: 0
         });
 
         airlinesCount = airlinesCount + 1;
-
-        emit AirlineAdded(_address);
     }
 
     /** */
@@ -174,6 +179,46 @@ contract FlightSuretyData {
                             returns (bool)
     {
         return airlines[_address].isAirline;
+    }
+
+    /** */
+    function getAirlineData
+                            (   
+                                address _address
+                            )
+                            external
+                            view
+                            onlyAuthorizedCaller
+                            returns
+                            (
+                                address addr,
+                                string name,
+                                uint256 balance,
+                                bool isAirline,
+                                bool isFunded,
+                                uint256 approvalCount
+                            )
+    {
+        addr = airlines[_address].addr;
+        name = airlines[_address].name;
+        balance = airlines[_address].balance;
+        isAirline = airlines[_address].isAirline;
+        isFunded = airlines[_address].isFunded;
+        approvalCount = airlines[_address].approvalCount;
+    }
+
+    /** */
+    function hasApprovedAirline
+                            (   
+                                address _address,
+                                address _airlineAddress
+                            )
+                            external
+                            view
+                            onlyAuthorizedCaller
+                            returns (bool)
+    {
+        return airlines[_airlineAddress].approvals[_address];
     }
 
      /** */
@@ -215,7 +260,6 @@ contract FlightSuretyData {
             airlines[_address].isFunded = true;
         }
     }
-
 
    /**
     * @dev Buy insurance for a flight
