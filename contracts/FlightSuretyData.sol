@@ -23,6 +23,7 @@ contract FlightSuretyData {
         bool isFunded;
     }
     mapping(address => Airline) private airlines;
+    uint256 airlinesCount;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -50,6 +51,7 @@ contract FlightSuretyData {
             isAirline: true,
             isFunded: false
         });
+        airlinesCount = 1;
         
         emit AirlineAdded(_firstAirline);
     }
@@ -157,6 +159,8 @@ contract FlightSuretyData {
             isFunded: false
         });
 
+        airlinesCount = airlinesCount + 1;
+
         emit AirlineAdded(_address);
     }
 
@@ -172,12 +176,24 @@ contract FlightSuretyData {
         return airlines[_address].isAirline;
     }
 
+     /** */
+    function getAirlinesCount
+                            (   
+                            )
+                            external
+                            view
+                            onlyAuthorizedCaller
+                            returns (uint256)
+    {
+        return airlinesCount;
+    }
+
     /** */
     function isFundedAirline
                             (   
                                 address _address
                             )
-                            public
+                            external
                             view
                             returns (bool)
     {
@@ -189,7 +205,7 @@ contract FlightSuretyData {
                             (   
                                 address _address
                             )
-                            public
+                            external
                             payable
                             onlyAuthorizedCaller
     {

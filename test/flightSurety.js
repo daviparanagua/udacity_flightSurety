@@ -129,6 +129,73 @@ contract('Flight Surety Tests', async (accounts) => {
     assert.equal(isNowFunded, true, "Is now funded");
 
   });
+
+  it('(airline) cannot fund itself if its not an airline', async () => {
+    
+    // ARRANGE
+    let notAirline = accounts[3];
+
+    let reverted = false;
+    // ACT
+    try {
+      await config.flightSuretyApp.addFunds({from: notAirline, value: web3.utils.toWei('10', 'ether')});
+    }
+    catch(e) {
+      reverted = true;
+    }
+    let isAirline = await config.flightSuretyApp.isAirline.call(notAirline);
+    let isFundedAirline = await config.flightSuretyApp.isFundedAirline.call(notAirline);
+
+    // ASSERT
+    assert.equal(isAirline, false, "Airline should not be able to register itself if it's not an airline");
+    assert.equal(isFundedAirline, false, "Airline should not be able to fund itself if it's not an airline");
+    assert.equal(reverted, true, "Transaction must revert");
+
+  });
+
+  it('(airline) can register an Airline using registerAirline() once funded, up to 4 accounts', async () => {
+    
+    // ARRANGE
+    let newAirline = accounts[2];
+    let newAirline3 = accounts[3];
+    let newAirline4 = accounts[4];
+
+    // ACT
+    try {
+        await config.flightSuretyApp.registerAirline(newAirline, 'Blue2 Airlines', {from: config.firstAirline});
+        await config.flightSuretyApp.registerAirline(newAirline3, 'Red3 Airlines', {from: config.firstAirline});
+        await config.flightSuretyApp.registerAirline(newAirline4, 'Green4 Airlines', {from: config.firstAirline});
+    }
+    catch(e) {
+
+    }
+    let result2 = await config.flightSuretyApp.isAirline.call(newAirline);
+    let result3 = await config.flightSuretyApp.isAirline.call(newAirline3);
+    let result4 = await config.flightSuretyApp.isAirline.call(newAirline4);
+
+    // ASSERT
+    assert.equal(result2, true, "Airline should be able to register another airline (2) if it has provided funding");
+    assert.equal(result3, true, "Airline should be able to register another airline (3) if it has provided funding");
+    assert.equal(result4, true, "Airline should be able to register another airline (4) if it has provided funding");
+
+    // Error case
+    let newAirline5_mustfail = accounts[5];
+    let reverted = false;
+
+    // ACT
+    try {
+      await config.flightSuretyApp.registerAirline(newAirline5_mustfail, 'Yellow5 Airlines', {from: config.firstAirline});
+    }
+    catch(e) {
+      reverted = true
+    }
+    let result = await config.flightSuretyApp.isAirline.call(newAirline5_mustfail);
+
+    // ASSERT
+    assert.equal(result, false, "Airline should not be able to register another airline after the fourth");
+    assert.equal(reverted, true, "Transcation must revert");
+
+  });
  
 
 });

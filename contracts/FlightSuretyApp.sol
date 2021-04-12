@@ -65,6 +65,12 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier onlyAirlines()
+    {
+        require(isAirline(msg.sender), "Caller is not a funded airline");
+        _;
+    }
+
     modifier onlyFundedAirlines()
     {
         require(isFundedAirline(msg.sender), "Caller is not a funded airline");
@@ -119,7 +125,13 @@ contract FlightSuretyApp {
                             onlyFundedAirlines
                             returns(bool success, uint256 votes)
     {
-        // require(isAirline(msg.sender), "Only airlines can register another airline");
+
+        if(flightSuretyData.getAirlinesCount() < 4) { // Simple registration
+            require(isAirline(msg.sender), "Only airlines can register another airline");
+        } else { // Multisig
+            revert("Requires multisig (not implemented)");
+        }
+
         flightSuretyData.registerAirline(_address, name);
         return (success, 0);
     }
@@ -143,6 +155,7 @@ contract FlightSuretyApp {
                             view
                             returns(bool)
     {
+        if(!isAirline(_address)){return false;}
         return flightSuretyData.isFundedAirline(_address);
     }
 
@@ -151,6 +164,7 @@ contract FlightSuretyApp {
                             )
                             public
                             payable
+                            onlyAirlines
     {
         flightSuretyData.addFunds.value(msg.value)(msg.sender);
     }
@@ -411,4 +425,11 @@ contract FlightSuretyData {
                             )
                             public
                             payable;
+
+    function getAirlinesCount
+                            (   
+                            )
+                            public
+                            view
+                            returns (uint256);
 }
