@@ -166,6 +166,40 @@ contract FlightSuretyData {
             approvalCount: 0
         });
 
+        if(_approved){
+            airlinesCount = airlinesCount + 1;
+        }
+    }
+
+    function addApproval
+                            (   
+                                address _address,
+                                address _approver
+                            )
+                            external
+                            onlyAuthorizedCaller
+    {
+        require(!airlines[_address].isAirline, "Request already approved");
+        require(!airlines[_address].approvals[_approver], "Already approved by this approver");
+
+        airlines[_address].approvalCount += 1;
+        airlines[_address].approvals[_approver] = true;
+    }
+
+
+     function confirmApproval
+                            (   
+                                address _address,
+                                address _approver
+                            )
+                            external
+                            onlyAuthorizedCaller
+    {
+        require(!airlines[_address].isAirline, "Request already approved");
+        require(!airlines[_address].approvals[_approver], "Already approved by this approver");
+
+        airlines[_address].approvals[_approver] = true;
+        airlines[_address].isAirline = true;
         airlinesCount = airlinesCount + 1;
     }
 

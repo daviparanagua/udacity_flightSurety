@@ -100,12 +100,14 @@ contract('Flight Surety Tests', async (accounts) => {
     let isFunded = await config.flightSuretyApp.isFundedAirline.call(config.firstAirline); 
     assert.equal(isFunded, false, "Not funded yet");
 
+    let reverted = false
+
      // ACT
      try {
       await config.flightSuretyApp.addFunds({from: config.firstAirline, value: web3.utils.toWei('1', 'gwei')});
       }
       catch(e) {
-        console.log('reverted');
+        reverted = true;
       }
 
       isAirline = await config.flightSuretyApp.isAirline.call(config.firstAirline); 
@@ -114,19 +116,23 @@ contract('Flight Surety Tests', async (accounts) => {
       let isNowFunded = await config.flightSuretyApp.isFundedAirline.call(config.firstAirline); 
       assert.equal(isNowFunded, false, "No good. Few ether");
 
-    // ACT
-    try {
-        await config.flightSuretyApp.addFunds({from: config.firstAirline, value: web3.utils.toWei('10', 'ether')});
-    }
-    catch(e) {
-      console.log('reverted');
-    }
+      // ACT
+      reverted = false;
+      
+      try {
+          await config.flightSuretyApp.addFunds({from: config.firstAirline, value: web3.utils.toWei('10', 'ether')});
+      }
+      catch(e) {
+        reverted = true;
+        console.error(e);
+      }
 
-    isAirline = await config.flightSuretyApp.isAirline.call(config.firstAirline); 
-    assert.equal(isAirline, true, "Still airline");
+      isAirline = await config.flightSuretyApp.isAirline.call(config.firstAirline); 
+      assert.equal(isAirline, true, "Still airline");
 
-    isNowFunded = await config.flightSuretyApp.isFundedAirline.call(config.firstAirline); 
-    assert.equal(isNowFunded, true, "Is now funded");
+      isNowFunded = await config.flightSuretyApp.isFundedAirline.call(config.firstAirline); 
+      assert.equal(isNowFunded, true, "Is now funded");
+      assert.equal(reverted, false, "Transaction must not revert");
 
   });
 
@@ -159,6 +165,7 @@ contract('Flight Surety Tests', async (accounts) => {
     let newAirline = accounts[2];
     let newAirline3 = accounts[3];
     let newAirline4 = accounts[4];
+    let reverted = false;
 
     // ACT
     try {
@@ -167,7 +174,7 @@ contract('Flight Surety Tests', async (accounts) => {
         await config.flightSuretyApp.registerAirline(newAirline4, 'Green4 Airlines', {from: config.firstAirline});
     }
     catch(e) {
-
+      reverted = true;
     }
     let result2 = await config.flightSuretyApp.isAirline.call(newAirline);
     let result3 = await config.flightSuretyApp.isAirline.call(newAirline3);
@@ -177,24 +184,71 @@ contract('Flight Surety Tests', async (accounts) => {
     assert.equal(result2, true, "Airline should be able to register another airline (2) if it has provided funding");
     assert.equal(result3, true, "Airline should be able to register another airline (3) if it has provided funding");
     assert.equal(result4, true, "Airline should be able to register another airline (4) if it has provided funding");
+    assert.equal(reverted, false, "Transaction must not revert");
 
-    // Error case
-    let newAirline5_mustfail = accounts[5];
+  });
+
+  it('(airline) can register fifth airline by multi-party consensus only', async () => {
+
+    // ARRANGE
+    let newAirline = accounts[5];
+    let approver = accounts[2];
     let reverted = false;
 
     // ACT
     try {
-      await config.flightSuretyApp.registerAirline(newAirline5_mustfail, 'Yellow5 Airlines', {from: config.firstAirline});
+      await config.flightSuretyApp.registerAirline(newAirline, 'Yellow5 Airlines', {from: config.firstAirline});
     }
     catch(e) {
       reverted = true
     }
-    let result = await config.flightSuretyApp.isAirline.call(newAirline5_mustfail);
+    let result = await config.flightSuretyApp.isAirline.call(newAirline);
 
     // ASSERT
     assert.equal(result, false, "Airline should not be able to register another airline after the fourth");
-    assert.equal(reverted, false, "Transcation must not revert");
+    assert.equal(reverted, false, "Transaction must not revert");
 
+    // ACT
+
+    await config.flightSuretyApp.addFunds({from: approver, value: web3.utils.toWei('10', 'ether')}); // Fund itself before approval
+
+    try {
+      await config.flightSuretyApp.registerAirline(newAirline, 'Yellow5 Airlines', {from: approver});
+    }
+    catch(e) {
+      reverted = true
+    }
+
+    result = await config.flightSuretyApp.isAirline.call(newAirline);
+
+    // ASSERT
+    assert.equal(result, true, "Airline be an airline after multi-party consensus");
+    assert.equal(reverted, false, "Transaction must not revert");
+
+  });
+ 
+  it('(airline) multi-party airline can fund itself', async () => {
+
+    // ARRANGE
+    let newAirline = accounts[5];
+    let reverted = false;
+
+    let result = await config.flightSuretyApp.isFundedAirline.call(newAirline);
+    assert.equal(result, false, "Airline should not be funded in the beggining");
+
+
+    // ACT
+    try {
+      await config.flightSuretyApp.addFunds({from: newAirline, value: web3.utils.toWei('10', 'ether')});
+    }
+    catch(e) {
+      reverted = true
+    }
+    result = await config.flightSuretyApp.isFundedAirline.call(newAirline);
+
+    // ASSERT
+    assert.equal(result, true, "Airline should be funded after funding itself");
+    assert.equal(reverted, false, "Transaction must not revert");
   });
  
 

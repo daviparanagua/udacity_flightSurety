@@ -12,8 +12,9 @@ import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 contract FlightSuretyApp {
     using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
 
-    event AirlineAdded(address airline);
-    event AirlineVotedForAdding(address airline);
+    event AirlineAdded(address airline, address approver);
+    event AirlineVotedForAdding(address airline, address approver);
+    event LogMe(string text, uint256 number, address sender);
 
     /********************************************************************************************/
     /*                                       DATA VARIABLES                                     */
@@ -139,7 +140,7 @@ contract FlightSuretyApp {
 
         if(flightSuretyData.getAirlinesCount() < maxAirlinesBeforeMultisig) { // Simple registration
             flightSuretyData.registerAirline(_address, name, true);
-            emit AirlineAdded(_address);
+            emit AirlineAdded(_address, msg.sender);
             return (true, 0); 
         } else { // Multisig
 
@@ -158,13 +159,17 @@ contract FlightSuretyApp {
 
             if(!exists){
                 flightSuretyData.registerAirline(_address, name, false);
-                
             }
-            else if(votes + 1 < airlinesCount/2) { // Only a vote
 
+            emit LogMe('approvalCount+1', approvalCount + 1, msg.sender);
+            emit LogMe('airlinesCount/2', airlinesCount/2, msg.sender);
 
+            if(approvalCount + 1 < airlinesCount/2) { // Only a vote
+                flightSuretyData.addApproval(_address, msg.sender);
+                emit AirlineVotedForAdding(_address, msg.sender);
             } else { // Final vote: approved
-
+                flightSuretyData.confirmApproval(_address, msg.sender);
+                emit AirlineAdded(_address, msg.sender);
             }
 
             
@@ -494,4 +499,18 @@ contract FlightSuretyData {
                             external
                             view
                             returns (bool);
+    
+    function addApproval
+                            (   
+                                address _address,
+                                address _approver
+                            )
+                            external;
+    
+    function confirmApproval
+                            (   
+                                address _address,
+                                address _approver
+                            )
+                            external;
 }
