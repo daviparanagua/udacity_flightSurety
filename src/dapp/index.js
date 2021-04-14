@@ -3,6 +3,8 @@ import DOM from './dom';
 import Contract from './contract';
 import './flightsurety.css';
 
+const flightsURL = 'http://localhost:3000/api/flights';
+
 
 (async() => {
 
@@ -20,7 +22,7 @@ import './flightsurety.css';
         // User-submitted transaction
         DOM.elid('submit-oracle').addEventListener('click', () => {
             let flight = DOM.elid('flight-number').value;
-            // Write transaction
+        // Write transaction
             contract.fetchFlightStatus(flight, (error, result) => {
                 display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
             });
@@ -31,6 +33,33 @@ import './flightsurety.css';
 
 })();
 
+
+function updateFlights() {
+    let displayDiv = DOM.elid("flight-number");
+
+    fetch(flightsURL)
+    .then((resp) => resp.json())
+    .then(function(data) {
+      let flights = data.flights;
+      displayDiv.innerHTML = '';
+      return flights.map(function(flight) {
+          const option = document.createElement('OPTION');
+          option.innerText = `${flight.number}: ${flight.from} => ${flight.to}`;
+          option.value = flight.number;
+          displayDiv.appendChild(option);
+        console.log(flight);
+      })
+    })
+    .catch(function(error) {
+      console.log(error);
+    });
+
+    
+    console.log(flights);
+
+}
+
+window.addEventListener('DOMContentLoaded', updateFlights);
 
 function display(title, description, results) {
     let displayDiv = DOM.elid("display-wrapper");
