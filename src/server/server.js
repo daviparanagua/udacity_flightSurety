@@ -1,4 +1,5 @@
 import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
+import flights from './flights.js';
 import Config from './config.json';
 import Web3 from 'web3';
 import express from 'express';
@@ -22,6 +23,13 @@ app.get('/api', (req, res) => {
     res.send({
       message: 'An API for use with your Dapp!'
     })
+})
+
+app.get('/api/flights', (req, res) => {
+  res.send({
+    status: 'OK',
+    flights
+  })
 })
 
 export default app;
