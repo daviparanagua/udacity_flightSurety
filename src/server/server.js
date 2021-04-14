@@ -3,6 +3,7 @@ import flights from './flights.js';
 import Config from './config.json';
 import Web3 from 'web3';
 import express from 'express';
+import cors from 'cors';
 
 
 let config = Config['localhost'];
@@ -19,6 +20,9 @@ flightSuretyApp.events.OracleRequest({
 });
 
 const app = express();
+app.use(cors());
+
+
 app.get('/api', (req, res) => {
     res.send({
       message: 'An API for use with your Dapp!'
