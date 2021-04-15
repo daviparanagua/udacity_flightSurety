@@ -236,7 +236,6 @@ contract('Flight Surety Tests', async (accounts) => {
     let result = await config.flightSuretyApp.isFundedAirline.call(newAirline);
     assert.equal(result, false, "Airline should not be funded in the beggining");
 
-
     // ACT
     try {
       await config.flightSuretyApp.addFunds({from: newAirline, value: web3.utils.toWei('10', 'ether')});
@@ -249,6 +248,26 @@ contract('Flight Surety Tests', async (accounts) => {
     // ASSERT
     assert.equal(result, true, "Airline should be funded after funding itself");
     assert.equal(reverted, false, "Transaction must not revert");
+  });
+
+  it('(passenger) must be able to buy insurance', async () => {
+
+    // ARRANGE
+    let passenger = accounts[6];
+    let flightID = 1234;
+    let reverted = false;
+    // ACT
+    try {
+      await config.flightSuretyApp.buyInsurance(flightID, {from: passenger, value: web3.utils.toWei('1', 'ether')});
+    }
+    catch(e) {
+      reverted = true
+    }
+    result = await config.flightSuretyApp.getInsurance.call(flightID, {from: passenger});
+
+    // ASSERT
+    assert.equal(reverted, false, "Transaction must not revert");
+    assert.equal(result, 1000000000000000000n, "Passenger has insurance");
   });
  
 

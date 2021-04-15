@@ -27,7 +27,10 @@ contract FlightSuretyData {
     }
     mapping(address => Airline) private airlines;
 
+    
+    // Insurances
 
+    mapping (address => mapping (uint256 => uint256)) insurances;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -300,12 +303,31 @@ contract FlightSuretyData {
     *
     */   
     function buy
-                            (                             
+                            (          
+                                address _address,
+                                uint256 flightID                
                             )
                             external
                             payable
+                            onlyAuthorizedCaller
     {
+        insurances[_address][flightID] += msg.value;
+    }
 
+    /**
+    * @dev Get Insurance value for flight
+    *
+    */   
+    function getInsuranceValue
+                            (          
+                                address _address,
+                                uint256 flightID           
+                            )
+                            external
+                            view
+                            returns (uint256)
+    {
+        return insurances[_address][flightID];
     }
 
     /**

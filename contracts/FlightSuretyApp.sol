@@ -209,18 +209,41 @@ contract FlightSuretyApp {
         flightSuretyData.addFunds.value(msg.value)(msg.sender);
     }
 
+    // FLIGHTS
 
    /**
-    * @dev Register a future flight for insuring.
+    * @dev Buy insurance
     *
     */  
-    function registerFlight
+    function buyInsurance
                                 (
+                                    uint256 flightID
                                 )
                                 external
-                                pure
+                                payable
     {
+        require(msg.value <= 1 ether, "Max insurance is 1 ether");
+        require(msg.value > 0 wei, "Must pay for insurance");
+        require(tx.origin == msg.sender, "Only external accounts can buy insurance");
+        require(flightID > 0, "Must specify flight ID");
+        require(flightSuretyData.getInsuranceValue(msg.sender, flightID) == 0, "Already bought insurance for this flight");
+        
+        flightSuretyData.buy.value(msg.value)(msg.sender, flightID);
+    }
 
+    /**
+    * @dev Buy insurance
+    *
+    */  
+    function getInsurance
+                                (
+                                    uint256 flightID
+                                )
+                                external
+                                view
+                                returns(uint256)
+    {
+        return flightSuretyData.getInsuranceValue(msg.sender, flightID);
     }
     
    /**
@@ -513,4 +536,21 @@ contract FlightSuretyData {
                                 address _approver
                             )
                             external;
+    
+    function getInsuranceValue
+                            (          
+                                address _address,
+                                uint256 flightID                
+                            )
+                            external
+                            view
+                            returns (uint256);
+
+    function buy
+                            (          
+                                address _address,
+                                uint256 flightID                
+                            )
+                            external
+                            payable;
 }
