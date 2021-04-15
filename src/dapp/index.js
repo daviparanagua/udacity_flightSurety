@@ -14,7 +14,8 @@ const flightsURL = 'http://localhost:3000/api/flights';
 
         // Read transaction
         contract.isOperational((error, result) => {
-            console.log(error,result);
+            
+            if(error) console.error(error);
             display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
         });
     
@@ -53,10 +54,6 @@ function updateFlights() {
     .catch(function(error) {
       console.log(error);
     });
-
-    
-    console.log(flights);
-
 }
 
 window.addEventListener('DOMContentLoaded', updateFlights);
