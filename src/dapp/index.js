@@ -45,8 +45,8 @@ function updateFlights() {
       displayDiv.innerHTML = '';
       return flights.map(function(flight) {
           const option = document.createElement('OPTION');
-          option.innerText = `${flight.number}: ${flight.from} => ${flight.to}`;
-          option.value = flight.number;
+          option.innerText = `${flight.id}: ${flight.from} => ${flight.to}`;
+          option.value = flight.id;
           displayDiv.appendChild(option);
         console.log(flight);
       })
