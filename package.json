@@ -11,7 +11,8 @@
     "test": "truffle test ./test/flightSurety.js",
     "dapp": "webpack serve --mode development --config webpack.config.dapp.js",
     "dapp:prod": "webpack --mode production  --config webpack.config.dapp.js",
-    "server": "rimraf ./build/server && webpack --config webpack.config.server.js"
+    "server": "rimraf ./build/server && webpack --config webpack.config.server.js",
+    "ganache-test": "ganache-cli -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\" -e 10000 -a 25"
   },
   "author": "Nik Kalyani <nik@kalyani.com> https://www.kalyani.com",
   "devDependencies": {
