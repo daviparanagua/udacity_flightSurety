@@ -48,7 +48,6 @@ function updateFlights() {
           option.innerText = `${flight.id}: ${flight.from} => ${flight.to}`;
           option.value = flight.id;
           displayDiv.appendChild(option);
-        console.log(flight);
       })
     })
     .catch(function(error) {
