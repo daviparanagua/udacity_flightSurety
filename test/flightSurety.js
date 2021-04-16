@@ -254,7 +254,7 @@ contract('Flight Surety Tests', async (accounts) => {
 
     // ARRANGE
     let passenger = accounts[6];
-    let flightID = 1234;
+    let flightID = '1234';
     let reverted = false;
     // ACT
     try {

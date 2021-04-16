@@ -30,7 +30,8 @@ contract FlightSuretyData {
     
     // Insurances
 
-    mapping (address => mapping (uint256 => uint256)) insurances;
+    mapping (address => mapping (string => uint256)) insurances;
+    mapping (address => uint256) balances;
 
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
@@ -305,7 +306,7 @@ contract FlightSuretyData {
     function buy
                             (          
                                 address _address,
-                                uint256 flightID                
+                                string flightID                
                             )
                             external
                             payable
@@ -321,7 +322,7 @@ contract FlightSuretyData {
     function getInsuranceValue
                             (          
                                 address _address,
-                                uint256 flightID           
+                                string flightID           
                             )
                             external
                             view
@@ -335,10 +336,31 @@ contract FlightSuretyData {
     */
     function creditInsurees
                                 (
+                                    address _airline,
+                                    address _insuree,
+                                    string _flightID
                                 )
                                 external
-                                pure
+                                onlyAuthorizedCaller
     {
+        uint256 amount = insurances[_insuree][_flightID];
+        airlines[_airline].balance -= amount;
+        balances[_insuree] += amount;
+    }
+
+    /**
+    * @dev Get Balance
+    *
+    */   
+    function getBalance
+                            (          
+                                address _address         
+                            )
+                            external
+                            view
+                            returns (uint256)
+    {
+        return balances[_address];
     }
     
 
