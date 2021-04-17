@@ -4,7 +4,7 @@ import Contract from './contract';
 import './flightsurety.css';
 
 const flightsURL = 'http://localhost:3000/api/flights';
-let updateInsuranceValue;
+let updateInsuranceValue, updateMyBalance;
 
 
 (async() => {
@@ -37,18 +37,28 @@ let updateInsuranceValue;
             contract.buyInsurance(flight, (error, result) => {
                 if (error) return console.error(error)
                 console.log('Bought insurance' + result);
+                updateInsuranceValue();
             });
         })
 
-        
         updateInsuranceValue = function updateInsuranceValue(){
                 let flight = DOM.elid('flight-number').value;
                 contract.getInsurance(flight, (error, result) => {
                     if (error) return console.error(error)
-                    console.log(result);
                     DOM.elid('insurance-amount').innerHTML = result / Math.pow(10, 18);
+                    updateMyBalance();6
             });
         }
+
+        updateMyBalance = function updateMyBalance(){
+            contract.getMyBalance((error, result) => {
+                if (error) return console.error(error)
+                console.log(result);
+                DOM.elid('my-balance').innerHTML = result / Math.pow(10, 18);
+        });
+    }
+
+    
 
         initialize();
 

@@ -13,6 +13,7 @@ export default class Contract {
         this.owner = null;
         this.airlines = [];
         this.passengers = [];
+        this.events = this.flightSuretyApp.events;
     }
 
     initialize(callback) {
@@ -62,9 +63,15 @@ export default class Contract {
              .buyInsurance(flightId).send({ from: self.owner, value: this.web3.utils.toWei('1', 'ether')}, callback);
      }
 
-     getInsurance(flightId, callback) {
+    getInsurance(flightId, callback) {
+    let self = this;
+    self.flightSuretyApp.methods
+            .getInsurance(flightId).call({ from: self.owner}, callback);
+    }
+
+    getMyBalance(callback) {
         let self = this;
         self.flightSuretyApp.methods
-             .getInsurance(flightId).call({ from: self.owner}, callback);
-     }
+                .getMyBalance().call({ from: self.owner}, callback);
+        }
 }
