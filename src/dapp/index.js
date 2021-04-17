@@ -4,6 +4,7 @@ import Contract from './contract';
 import './flightsurety.css';
 
 const flightsURL = 'http://localhost:3000/api/flights';
+let updateInsuranceValue;
 
 
 (async() => {
@@ -28,12 +29,33 @@ const flightsURL = 'http://localhost:3000/api/flights';
                 display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
             });
         })
-    
+
+        // User-submitted transaction
+        DOM.elid('buy-insurance').addEventListener('click', () => {
+            let flight = DOM.elid('flight-number').value;
+        // Write transaction
+            contract.buyInsurance(flight, (error, result) => {
+                if (error) return console.error(error)
+                console.log('Bought insurance' + result);
+            });
+        })
+
+        
+        updateInsuranceValue = function updateInsuranceValue(){
+                let flight = DOM.elid('flight-number').value;
+                contract.getInsurance(flight, (error, result) => {
+                    if (error) return console.error(error)
+                    console.log(result);
+                    DOM.elid('insurance-amount').innerHTML = result / Math.pow(10, 18);
+            });
+        }
+
+        initialize();
+
     });
     
 
 })();
-
 
 function updateFlights() {
     let displayDiv = DOM.elid("flight-number");
@@ -43,19 +65,27 @@ function updateFlights() {
     .then(function(data) {
       let flights = data.flights;
       displayDiv.innerHTML = '';
-      return flights.map(function(flight) {
+      flights.forEach(function(flight) {
           const option = document.createElement('OPTION');
           option.innerText = `${flight.id}: ${flight.from} => ${flight.to}`;
           option.value = flight.id;
           displayDiv.appendChild(option);
       })
+      updateInsuranceValue();
     })
     .catch(function(error) {
       console.log(error);
     });
 }
 
-window.addEventListener('DOMContentLoaded', updateFlights);
+function initialize()  {
+    updateFlights();
+    const selectElement = document.querySelector('#flight-number');
+
+    selectElement.addEventListener('change', (event) => {
+        updateInsuranceValue();
+    });
+};
 
 function display(title, description, results) {
     let displayDiv = DOM.elid("display-wrapper");
