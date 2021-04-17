@@ -228,6 +228,7 @@ contract FlightSuretyApp {
         require(bytes(flightID).length > 0, "Must specify flight ID");
         require(flightSuretyData.getInsuranceValue(msg.sender, flightID) == 0, "Already bought insurance for this flight");
         
+        emit LogMe(flightID, msg.value , msg.sender);
         flightSuretyData.buy.value(msg.value)(msg.sender, flightID);
     }
 
@@ -244,6 +245,20 @@ contract FlightSuretyApp {
                                 returns(uint256)
     {
         return flightSuretyData.getInsuranceValue(msg.sender, flightID);
+    }
+
+    /**
+    * @dev Buy insurance
+    *
+    */  
+    function getMyBalance
+                                (
+                                )
+                                external
+                                view
+                                returns(uint256)
+    {
+        return flightSuretyData.getBalance(msg.sender);
     }
     
    /**
