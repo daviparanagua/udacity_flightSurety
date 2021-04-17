@@ -312,7 +312,7 @@ contract FlightSuretyData {
                             payable
                             onlyAuthorizedCaller
     {
-        insurances[_address][flightID] += msg.value;
+        insurances[_address][flightID] = insurances[_address][flightID] + msg.value;
     }
 
     /**
