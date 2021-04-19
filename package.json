@@ -12,7 +12,7 @@
     "dapp": "webpack serve --mode development --config webpack.config.dapp.js",
     "dapp:prod": "webpack --mode production  --config webpack.config.dapp.js",
     "server": "rimraf ./build/server && webpack --config webpack.config.server.js",
-    "ganache-test": "ganache-cli -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\" -e 10000 -a 25"
+    "ganache-test": "ganache-cli -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\" -e 10000 -a 50 -l 9999999"
   },
   "author": "Nik Kalyani <nik@kalyani.com> https://www.kalyani.com",
   "devDependencies": {
@@ -33,6 +33,7 @@
     "html-loader": "0.5.5",
     "html-webpack-plugin": "^3.2.0",
     "openzeppelin-solidity": "^1.10.0",
+    "rimraf": "^3.0.2",
     "start-server-webpack-plugin": "^2.2.5",
     "style-loader": "^2.0.0",
     "superstatic": "^7.1.0",
@@ -42,8 +43,7 @@
     "webpack": "^4.6.0",
     "webpack-cli": "^4.0.0",
     "webpack-dev-server": "^3.11.2",
-    "webpack-node-externals": "1.7.2",
-    "rimraf": "^3.0.2"
+    "webpack-node-externals": "1.7.2"
   },
   "dependencies": {
     "cors": "^2.8.5",
