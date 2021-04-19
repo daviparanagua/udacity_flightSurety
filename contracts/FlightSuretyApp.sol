@@ -14,6 +14,7 @@ contract FlightSuretyApp {
 
     event AirlineAdded(address airline, address approver);
     event AirlineVotedForAdding(address airline, address approver);
+    event InsureeCredited(address airline, address insuree, string flightID);
     event LogMe(string text, uint256 number, address sender);
 
     /********************************************************************************************/
@@ -275,7 +276,8 @@ contract FlightSuretyApp {
                                 internal
     {
         if(statusCode == 20) {
-            flightSuretyData.creditInsurees(airline, msg.sender, flight);
+            flightSuretyData.creditInsurees(airline, msg.sender, flight); // Insuree is not sender lol
+            emit InsureeCredited(airline, msg.sender, flight);
         }
     }
 
