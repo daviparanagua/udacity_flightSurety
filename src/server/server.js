@@ -79,7 +79,7 @@ function startOracleListeners() {
     if (error) console.log(error)
     
     let eventData = event.returnValues;
-    let statusCode = 20;
+    let statusCode = getRandomValue([0, 10, 20, 30, 40, 50]);
 
     oracles.filter(or => or.indexes.includes(eventData.index)).forEach(async oracle => {
       try {
@@ -130,6 +130,11 @@ function startOracleListeners() {
     console.log(eventData);
   });
 
+}
+
+
+function getRandomValue(array){
+  return array[Math.floor(Math.random() * array.length)];
 }
 
 export default app;
