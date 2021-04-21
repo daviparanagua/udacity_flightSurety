@@ -105,6 +105,16 @@ function startOracleListeners() {
     console.log(`Insuree credited: insuree: ${eventData.insuree}, flight: ${eventData.flightID}`);
   });
 
+  flightSuretyApp.events.LogMe({
+    fromBlock: 0
+  }, async function (error, event) {
+    if (error) console.log(error)
+    
+    let eventData = event.returnValues;
+    console.log(`Logged:`);
+    console.log(eventData);
+  });
+
 }
 
 
