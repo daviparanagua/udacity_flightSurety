@@ -388,23 +388,15 @@ contract FlightSuretyData {
     */
     function pay
                             (
+                                address insuree
                             )
                             external
-                            pure
     {
-    }
+        uint256 amount = balances[insuree];
+        require(amount > 0, "No balance to withdraw");
+        balances[insuree] = 0;
 
-   /**
-    * @dev Initial funding for the insurance. Unless there are too many delayed flights
-    *      resulting in insurance payouts, the contract should be self-sustaining
-    *
-    */   
-    function fund
-                            (   
-                            )
-                            public
-                            payable
-    {
+        insuree.transfer(amount);
     }
 
     function getFlightKey
@@ -428,7 +420,7 @@ contract FlightSuretyData {
                             external 
                             payable 
     {
-        fund();
+        revert(); // Can only add funds by app contract
     }
 
 

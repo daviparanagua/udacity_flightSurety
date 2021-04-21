@@ -82,9 +82,20 @@ export default class Contract {
             .getInsurance(flightId).call({ from: self.passengers[0]}, callback);
     }
 
-    getMyBalance(callback) {
+    getWithdrawBalance(callback) {
         let self = this;
         self.flightSuretyApp.methods
                 .getMyBalance().call({ from: self.passengers[0]}, callback);
-        }
+    }
+
+    withdrawFunds(callback) {
+        let self = this;
+        self.flightSuretyApp.methods
+             .withdrawFunds().send({ from: self.passengers[0]}, callback);
+    }
+
+    getMyBalance(callback) {
+        let self = this;
+        this.web3.eth.getBalance(self.passengers[0], callback);
+    }
 }

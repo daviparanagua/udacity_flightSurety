@@ -211,6 +211,14 @@ contract FlightSuretyApp {
         flightSuretyData.addFunds.value(msg.value)(msg.sender);
     }
 
+    function withdrawFunds
+                            (
+                            )
+                            public
+    {
+        flightSuretyData.pay(msg.sender);
+    }
+
     // FLIGHTS
 
    /**
@@ -591,4 +599,10 @@ contract FlightSuretyData {
                             external
                             view
                             returns (uint256);
+    
+    function pay
+                            (
+                                address insuree
+                            )
+                            external;
 }

@@ -20,9 +20,13 @@
     </nav>
 
     <main class="container">
+        <div class="row">
+            My balance: <span id="my-balance" style="margin: 0 3px 0 8px">---</span> ether / Can withdraw <span id="withdraw-balance" style="margin: 0 3px 0 8px">---</span> ether
+            <btn class="btn btn-light btn-sm" style="margin-left: 10px" id="btn-withdraw">Withdraw</btn>
+        </div>
         <div class="row top-20">
             <label class="form">Flight</label> <select id="flight-number"></select>
-            Insurance amount: <span id="insurance-amount" style="margin: 0 3px 0 8px">---</span> ether / Balance: <span id="my-balance" style="margin: 0 3px 0 8px">---</span> ether
+            Insurance amount: <span id="insurance-amount" style="margin: 0 3px 0 8px">---</span> ether
         </div>
         <div class="row top-20">
             <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>

@@ -42,6 +42,15 @@ let updateInsuranceValue, updateMyBalance;
             });
         })
 
+        // Withdraw
+        DOM.elid('btn-withdraw').addEventListener('click', () => {
+            contract.withdrawFunds((error, result) => {
+                if (error) return console.error(error)
+                console.log('Withdrew funds');
+                updateInsuranceValue();
+            });
+        })
+
         updateInsuranceValue = function updateInsuranceValue(){
                 let flight = DOM.elid('flight-number').value;
                 contract.getInsurance(flight, (error, result) => {
@@ -52,11 +61,16 @@ let updateInsuranceValue, updateMyBalance;
         }
 
         updateMyBalance = function updateMyBalance(){
+            contract.getWithdrawBalance((error, result) => {
+                if (error) return console.error(error)
+                console.log(result);
+                DOM.elid('withdraw-balance').innerHTML = result / Math.pow(10, 18);
+            });
             contract.getMyBalance((error, result) => {
                 if (error) return console.error(error)
                 console.log(result);
                 DOM.elid('my-balance').innerHTML = result / Math.pow(10, 18);
-        });
+            });
     }
 
     
