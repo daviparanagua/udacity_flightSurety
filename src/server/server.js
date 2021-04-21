@@ -47,7 +47,7 @@ async function initializeOracles() {
           let oracle = {indexes, address}
 
           oracles.push(oracle);
-          console.log(`Oracle Registered: ${oracle.indexes} points to ${oracle.address}`);
+          // console.log(`Oracle Registered: ${oracle.indexes} points to ${oracle.address}`);
       });
 }
 
@@ -82,7 +82,13 @@ function startOracleListeners() {
     let statusCode = 20;
 
     oracles.filter(or => or.indexes.includes(eventData.index)).forEach(async oracle => {
-      await flightSuretyApp.methods.submitOracleResponse(eventData.index, eventData.airline, eventData.flight, eventData.timestamp, statusCode).send({from: oracle.address});
+      try {
+        console.log(eventData.index, oracle.address);
+        await flightSuretyApp.methods.submitOracleResponse(eventData.index, eventData.airline, eventData.flight, eventData.timestamp, statusCode).send({from: oracle.address, gas: 9999999});
+      }
+      catch (e) {
+        console.error(e);
+      }
       console.log(`Oracle response sent: ${oracle.address}, index(${eventData.index}) => ${statusCode}`)
     })
   });
@@ -96,13 +102,22 @@ function startOracleListeners() {
     console.log(`Flight status defined: airline: ${eventData.airline}, flight: ${eventData.flight}, timestamp: ${eventData.timestamp}, status: ${eventData.status}`);
   });
 
-  flightSuretyApp.events.InsureeCredited({
+  flightSuretyApp.events.OracleRegistered({
     fromBlock: 0
   }, async function (error, event) {
     if (error) console.log(error)
     
     let eventData = event.returnValues;
-    console.log(`Insuree credited: insuree: ${eventData.insuree}, flight: ${eventData.flightID}`);
+    console.log(`Oracle Registered: address: ${eventData.oracleAddress}, indexes: ${eventData.indexes}`);
+  });
+
+  flightSuretyApp.events.InsureesCredited({
+    fromBlock: 0
+  }, async function (error, event) {
+    if (error) console.log(error)
+    
+    let eventData = event.returnValues;
+    console.log(`Insuree credited: airline: ${eventData.airline}, flight: ${eventData.flightID}`);
   });
 
   flightSuretyApp.events.LogMe({
@@ -116,10 +131,6 @@ function startOracleListeners() {
   });
 
 }
-
-
-
-
 
 export default app;
 

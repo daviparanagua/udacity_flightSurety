@@ -27,6 +27,7 @@ let updateInsuranceValue, updateMyBalance;
         // Write transaction
             contract.fetchFlightStatus(flight, (error, result) => {
                 display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+                setTimeout(updateInsuranceValue, 1000);
             });
         })
 
@@ -46,7 +47,7 @@ let updateInsuranceValue, updateMyBalance;
                 contract.getInsurance(flight, (error, result) => {
                     if (error) return console.error(error)
                     DOM.elid('insurance-amount').innerHTML = result / Math.pow(10, 18);
-                    updateMyBalance();6
+                    updateMyBalance();
             });
         }
 

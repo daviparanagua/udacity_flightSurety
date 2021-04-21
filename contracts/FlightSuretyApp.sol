@@ -14,7 +14,8 @@ contract FlightSuretyApp {
 
     event AirlineAdded(address airline, address approver);
     event AirlineVotedForAdding(address airline, address approver);
-    event InsureeCredited(address airline, address insuree, string flightID);
+    event InsureesCredited(address airline, string flightID);
+    event OracleRegistered(address oracleAddress, uint8[3] indexes);
     event LogMe(string text, uint256 number, address sender);
 
     /********************************************************************************************/
@@ -218,7 +219,8 @@ contract FlightSuretyApp {
     */  
     function buyInsurance
                                 (
-                                    string flightID
+                                    string flightID,
+                                    address airline
                                 )
                                 external
                                 payable
@@ -230,7 +232,7 @@ contract FlightSuretyApp {
         require(flightSuretyData.getInsuranceValue(msg.sender, flightID) == 0, "Already bought insurance for this flight");
         
         emit LogMe(flightID, msg.value , msg.sender);
-        flightSuretyData.buy.value(msg.value)(msg.sender, flightID);
+        flightSuretyData.buy.value(msg.value)(msg.sender, flightID, airline);
     }
 
     /**
@@ -276,8 +278,8 @@ contract FlightSuretyApp {
                                 internal
     {
         if(statusCode == 20) {
-            flightSuretyData.creditInsurees(airline, msg.sender, flight); // Insuree is not sender lol
-            emit InsureeCredited(airline, msg.sender, flight);
+            flightSuretyData.creditInsurees(airline, flight);
+            emit InsureesCredited(airline, flight);
         }
     }
 
@@ -364,6 +366,8 @@ contract FlightSuretyApp {
                                         isRegistered: true,
                                         indexes: indexes
                                     });
+        
+        emit OracleRegistered(msg.sender, indexes);
     }
 
     function getMyIndexes
@@ -396,7 +400,6 @@ contract FlightSuretyApp {
                         external
     {
         require((oracles[msg.sender].indexes[0] == index) || (oracles[msg.sender].indexes[1] == index) || (oracles[msg.sender].indexes[2] == index), "Index does not match oracle request");
-
 
         bytes32 key = keccak256(abi.encodePacked(index, airline, flight, timestamp)); 
         require(oracleResponses[key].isOpen, "Flight or timestamp do not match oracle request");
@@ -568,7 +571,8 @@ contract FlightSuretyData {
     function buy
                             (          
                                 address _address,
-                                string flightID                
+                                string flightID,
+                                address airline 
                             )
                             external
                             payable;
@@ -576,7 +580,6 @@ contract FlightSuretyData {
     function creditInsurees
                             (
                                 address _airline,
-                                address _insuree,
                                 string _flightID
                             )
                             external;

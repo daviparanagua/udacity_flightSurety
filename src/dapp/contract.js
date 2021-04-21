@@ -19,20 +19,32 @@ export default class Contract {
     initialize(callback) {
         this.web3.eth.getAccounts((error, accts) => {
            
+            this.firstAirline = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
             this.owner = accts[0];
             this.flightSuretyData.methods.authorizeCaller(this.flightSuretyApp._address).send({from: this.owner});
 
             let counter = 1;
-            
-            while(this.airlines.length < 5) {
-                this.airlines.push(accts[counter++]);
-            }
+
+            this.flightSuretyApp.methods.isFundedAirline(this.firstAirline).call({from: this.firstAirline}, (err, res) => {
+                if(res) {
+                    console.log("airline already funded");
+                    callback();
+                }
+                else {
+                    console.log("funding airline");
+                    this.flightSuretyApp.methods.addFunds().send({from: this.firstAirline, value: Web3.utils.toWei('10', 'ether')}, (err, res) => {
+                        callback();
+                    })
+                }
+            })
+
+            this.airlines.push(this.firstAirline);
 
             while(this.passengers.length < 5) {
                 this.passengers.push(accts[counter++]);
             }
 
-            callback();
+            
         });
     }
 
@@ -59,19 +71,20 @@ export default class Contract {
 
     buyInsurance(flightId, callback) {
         let self = this;
+        console.log(`Buying insurance for ${flightId} from ${self.passengers[0]}`)
         self.flightSuretyApp.methods
-             .buyInsurance(flightId).send({ from: self.owner, value: this.web3.utils.toWei('1', 'ether')}, callback);
+             .buyInsurance(flightId, self.airlines[0]).send({ from: self.passengers[0], value: this.web3.utils.toWei('1', 'ether'), gas: 9999999}, callback);
      }
 
     getInsurance(flightId, callback) {
     let self = this;
     self.flightSuretyApp.methods
-            .getInsurance(flightId).call({ from: self.owner}, callback);
+            .getInsurance(flightId).call({ from: self.passengers[0]}, callback);
     }
 
     getMyBalance(callback) {
         let self = this;
         self.flightSuretyApp.methods
-                .getMyBalance().call({ from: self.owner}, callback);
+                .getMyBalance().call({ from: self.passengers[0]}, callback);
         }
 }

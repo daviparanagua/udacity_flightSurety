@@ -31,6 +31,7 @@ contract FlightSuretyData {
     // Insurances
 
     mapping (address => mapping (string => uint256)) insurances;
+    mapping (string => address[]) insurancesPerFlight;
     mapping (address => uint256) balances;
 
     /********************************************************************************************/
@@ -306,13 +307,20 @@ contract FlightSuretyData {
     function buy
                             (          
                                 address _address,
-                                string flightID                
+                                string _flightID,
+                                address airline        
                             )
                             external
                             payable
                             onlyAuthorizedCaller
     {
-        insurances[_address][flightID] = insurances[_address][flightID] + msg.value;
+        address insuree = _address;
+        string memory flightID = _flightID;
+        uint256 insuranceValue = msg.value;
+
+        insurancesPerFlight[flightID].push(insuree);
+        insurances[insuree][flightID] = insurances[insuree][flightID].add(insuranceValue);
+        airlines[airline].balance.add(msg.value);
     }
 
     /**
@@ -337,15 +345,25 @@ contract FlightSuretyData {
     function creditInsurees
                                 (
                                     address _airline,
-                                    address _insuree,
                                     string _flightID
                                 )
                                 external
                                 onlyAuthorizedCaller
     {
-        uint256 amount = insurances[_insuree][_flightID];
-        airlines[_airline].balance -= amount;
-        balances[_insuree] += amount;
+        address _insuree;
+        uint256 amount;
+
+        for(uint i=0; i < insurancesPerFlight[_flightID].length; i++){
+            _insuree = insurancesPerFlight[_flightID][i];
+            amount = insurances[_insuree][_flightID].mul(3).div(2);
+
+            insurances[_insuree][_flightID] = 0;
+            balances[_insuree] = balances[_insuree].add(amount);
+
+            airlines[_airline].balance = airlines[_airline].balance.sub(amount);
+        }
+        
+        delete insurancesPerFlight[_flightID];
     }
 
     /**

@@ -258,7 +258,7 @@ contract('Flight Surety Tests', async (accounts) => {
     let reverted = false;
     // ACT
     try {
-      await config.flightSuretyApp.buyInsurance(flightID, {from: passenger, value: web3.utils.toWei('1', 'ether')});
+      await config.flightSuretyApp.buyInsurance(flightID, config.firstAirline, {from: passenger, value: web3.utils.toWei('1', 'ether')});
     }
     catch(e) {
       reverted = true
